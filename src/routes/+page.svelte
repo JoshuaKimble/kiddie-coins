@@ -1,6 +1,6 @@
 <script>
-	import Modal from './Modal.svelte';
-	import Button from './Button.svelte';
+	import Modal from './components/Modal.svelte';
+	import Button from './components/Button.svelte';
 	import { onMount } from 'svelte';
 
 	let people = [];
@@ -19,6 +19,11 @@
 	let showModal = false;
 	let isAuthenticated = false;
 	let isLoading = false;
+
+	const thirtyMinutes = 15 * 60 * 1000;
+	setInterval(() => {
+		isAuthenticated = false;
+	}, thirtyMinutes);
 
 	function getCurrentPin() {
 		const now = new Date();
@@ -127,17 +132,13 @@
 	}
 	.container {
 		display: grid;
-		grid-template-columns: 1fr; /* Single column for mobile screens */
+		grid-template-columns: 1fr;
 		grid-gap: 20px;
 		padding: 20px;
 	}
 	@media (min-width: 768px) {
-		/* Tablet and larger screens */
 		.container {
-			grid-template-columns: repeat(
-				auto-fit,
-				minmax(250px, 1fr)
-			); /* Adapts for multiple columns on wider screens */
+			grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 		}
 	}
 	.card {
@@ -147,7 +148,7 @@
 		overflow: hidden;
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 		display: flex;
-		flex-direction: column; /* Stack image and card body vertically */
+		flex-direction: column;
 	}
 	.person-image {
 		width: 100%;
