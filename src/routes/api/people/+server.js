@@ -34,11 +34,7 @@ export async function GET() {
 			data: transformData(response.data.values)
 		});
 	} catch (error) {
-		console.error('Failed to fetch data from Google Sheets:', error);
-		return json({
-			status: 500,
-			body: { message: 'Failed to fetch data', error }
-		});
+		return json({ message: 'Failed to fetch data from Google Sheets:', error }, { status: 500 });
 	}
 }
 
@@ -71,17 +67,11 @@ export async function POST({ request }) {
 				body: { message: 'Update successful' }
 			});
 		} else {
-			return json({
-				status: 404,
-				body: { error: 'Person not found' }
-			});
+			return json({ message: 'Person not found' }, { status: 404 });
 		}
 	} catch (error) {
 		console.error('Failed to update data in Google Sheets:', error);
-		return json({
-			status: 500,
-			body: { error: 'Failed to update data' }
-		});
+		return json({ message: 'Failed to update data in Google Sheets:', error }, { status: 500 });
 	}
 }
 

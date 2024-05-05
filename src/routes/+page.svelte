@@ -2,12 +2,18 @@
 	import Modal from './Modal.svelte';
 	import Button from './Button.svelte';
 	import { onMount } from 'svelte';
-	import { loadPeople, savePeople } from './indexedDB';
 
 	let people = [];
 
 	onMount(async () => {
-		people = await loadPeople();
+		const response = await fetch('/api/people');
+		if (response.ok) {
+			const { data } = await response.json();
+			console.log('data:', data);
+			people = data;
+		} else {
+			console.error('failed to fetch people');
+		}
 	});
 
 	let showModal = false;
@@ -36,13 +42,28 @@
 		showModal = !showModal;
 	}
 
+	async function updateCoins(personName, newCoinCount) {
+		const response = await fetch('/api/people', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ name: personName, coins: newCoinCount })
+		});
+		if (response.ok) {
+			console.info('Update was successful');
+		} else {
+			console.error('Failed to update coins');
+		}
+	}
+
 	async function updateCoinCount(index, increment = true) {
 		if (!isAuthenticated) {
 			alert('You must be signed in to edit coins!');
 			return;
 		}
 
-		const { coins } = people[index];
+		const { coins, name } = people[index];
 		const newCoinCount = increment ? coins + 1 : coins - 1;
 
 		if (newCoinCount < 0) {
@@ -52,8 +73,8 @@
 
 		isLoading = true;
 		try {
+			await updateCoins(name, newCoinCount);
 			people[index].coins = newCoinCount;
-			await savePeople(people);
 		} catch (error) {
 			console.error('Failed to update coins:', error);
 			alert('Failed to update coins.');
