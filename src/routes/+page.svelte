@@ -90,7 +90,7 @@
 </script>
 
 <div class="header">
-	<h1>Kiddie Coins</h1>
+	<h1><img class="logo" src="/kid-coin.png" alt="coin" />Kid Coins</h1>
 	<Button variant="secondary" on:click={toggleModal}>Login</Button>
 </div>
 
@@ -126,6 +126,10 @@
 		padding: 20px;
 		background-color: #fff;
 		border-bottom: 1px solid #ccc;
+	}
+	.header .logo {
+		width: 34px;
+		margin-bottom: -5px;
 	}
 	.plus-minus {
 		font-size: 32px;
