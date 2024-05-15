@@ -6,6 +6,7 @@
 
 	let people = [];
 	let isPageLoading = false;
+	let loadingStates = [];
 
 	onMount(async () => {
 		isPageLoading = true;
@@ -14,6 +15,7 @@
 			const { data } = await response.json();
 			console.log('data:', data);
 			people = data;
+			loadingStates = new Array(people.length).fill(false);
 		} else {
 			console.error('failed to fetch people');
 		}
@@ -80,7 +82,7 @@
 			return;
 		}
 
-		isLoading = true;
+		loadingStates[index] = true;
 		try {
 			await updateCoins(name, newCoinCount);
 			people[index].coins = newCoinCount;
@@ -88,7 +90,7 @@
 			console.error('Failed to update coins:', error);
 			alert('Failed to update coins.');
 		} finally {
-			isLoading = false;
+			loadingStates[index] = false;
 		}
 	}
 </script>
@@ -115,19 +117,19 @@
 					<Button
 						variant="secondary"
 						on:click={() => updateCoinCount(index, false)}
-						disabled={isLoading}
+						disabled={loadingStates[index]}
 					>
 						<span class="plus-minus">
-							{#if isLoading}
+							{#if loadingStates[index]}
 								<Spinner />
 							{:else}
 								&#45;
 							{/if}
 						</span>
 					</Button>
-					<Button on:click={() => updateCoinCount(index)} disabled={isLoading}>
+					<Button on:click={() => updateCoinCount(index)} disabled={loadingStates[index]}>
 						<span class="plus-minus">
-							{#if isLoading}
+							{#if loadingStates[index]}
 								<Spinner />
 							{:else}
 								&#43;
