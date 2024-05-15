@@ -1,11 +1,14 @@
 <script>
 	import Modal from './components/Modal.svelte';
 	import Button from './components/Button.svelte';
+	import Spinner from './components/Spinner.svelte';
 	import { onMount } from 'svelte';
 
 	let people = [];
+	let isPageLoading = false;
 
 	onMount(async () => {
+		isPageLoading = true;
 		const response = await fetch('/api/people');
 		if (response.ok) {
 			const { data } = await response.json();
@@ -14,6 +17,7 @@
 		} else {
 			console.error('failed to fetch people');
 		}
+		isPageLoading = false;
 	});
 
 	let showModal = false;
@@ -96,27 +100,45 @@
 
 <Modal show={showModal} authenticate={checkPin} close={toggleModal} />
 
-<div class="container">
-	{#each people as person, index}
-		<div class="card">
-			<img src={person.img} alt={person.name} class="person-image" />
-			<div class="card-body">
-				<h3>{person.name}</h3>
-				<p>{person.coins} coins</p>
-				<Button
-					variant="secondary"
-					on:click={() => updateCoinCount(index, false)}
-					disabled={isLoading}
-				>
-					<span class="plus-minus">-</span>
-				</Button>
-				<Button on:click={() => updateCoinCount(index)} disabled={isLoading}>
-					<span class="plus-minus">+</span>
-				</Button>
+{#if isPageLoading}
+	<div class="loading-container">
+		<Spinner --size={'10em'} />
+	</div>
+{:else}
+	<div class="container">
+		{#each people as person, index}
+			<div class="card">
+				<img src={person.img} alt={person.name} class="person-image" />
+				<div class="card-body">
+					<h3>{person.name}</h3>
+					<p>{person.coins} coins</p>
+					<Button
+						variant="secondary"
+						on:click={() => updateCoinCount(index, false)}
+						disabled={isLoading}
+					>
+						<span class="plus-minus">
+							{#if isLoading}
+								<Spinner />
+							{:else}
+								&#45;
+							{/if}
+						</span>
+					</Button>
+					<Button on:click={() => updateCoinCount(index)} disabled={isLoading}>
+						<span class="plus-minus">
+							{#if isLoading}
+								<Spinner />
+							{:else}
+								&#43;
+							{/if}
+						</span>
+					</Button>
+				</div>
 			</div>
-		</div>
-	{/each}
-</div>
+		{/each}
+	</div>
+{/if}
 
 <style>
 	.header {
@@ -132,7 +154,16 @@
 		margin-bottom: -5px;
 	}
 	.plus-minus {
-		font-size: 32px;
+		display: inline-block;
+		font-size: 38px;
+		height: 20px;
+		width: 20px;
+	}
+	.loading-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 25% 0;
 	}
 	.container {
 		display: grid;
