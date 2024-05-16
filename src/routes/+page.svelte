@@ -8,7 +8,7 @@
 	let isPageLoading = false;
 	let loadingStates = [];
 	let showModal = false;
-	let isAuthenticated = true;
+	let isAuthenticated = false;
 
 	onMount(async () => {
 		isPageLoading = true;
@@ -69,24 +69,24 @@
 	let timeoutId;
 	let longPressTriggered = false;
 
-	function handleLongPress(index, increment) {
+	function handlePressStart(index, increment) {
 		timeoutId = setTimeout(() => {
-			updateCoinCount(index, increment, 10); // Change 10 coins on long press
-			longPressTriggered = true; // Set the flag when long press action occurs
-		}, 1000); // Long press duration
+			updateCoinCount(index, increment, 10);
+			longPressTriggered = true;
+		}, 1000);
 	}
 
-	function clearLongPress() {
+	function handlePressEnd(index, increment) {
 		clearTimeout(timeoutId);
-		timeoutId = null;
+		if (!longPressTriggered) {
+			updateCoinCount(index, increment);
+		}
+		longPressTriggered = false;
 	}
 
-	function handleMouseUp(index, increment) {
-		clearLongPress();
-		if (!longPressTriggered) {
-			updateCoinCount(index, increment); // Only proceed with click if long press wasn't triggered
-		}
-		longPressTriggered = false; // Reset the flag after handling mouse up
+	function handlePressCancel() {
+		clearTimeout(timeoutId);
+		longPressTriggered = false;
 	}
 
 	async function updateCoinCount(index, increment = true, amount = 1) {
@@ -138,9 +138,12 @@
 					<p>{person.coins} coins</p>
 					<Button
 						variant="secondary"
-						on:mousedown={() => handleLongPress(index, false)}
-						on:mouseup={() => handleMouseUp(index, false)}
-						on:mouseleave={clearLongPress}
+						on:mousedown={() => handlePressStart(index, false)}
+						on:mouseup={() => handlePressEnd(index, false)}
+						on:mouseleave={handlePressCancel}
+						on:touchstart={() => handlePressStart(index, false)}
+						on:touchend={() => handlePressEnd(index, false)}
+						on:touchcancel={handlePressCancel}
 						disabled={loadingStates[index]}
 					>
 						<span class="plus-minus">
@@ -152,9 +155,12 @@
 						</span>
 					</Button>
 					<Button
-						on:mousedown={() => handleLongPress(index, true)}
-						on:mouseup={() => handleMouseUp(index, true)}
-						on:mouseleave={clearLongPress}
+						on:mousedown={() => handlePressStart(index, true)}
+						on:mouseup={() => handlePressEnd(index, true)}
+						on:mouseleave={handlePressCancel}
+						on:touchstart={() => handlePressStart(index, true)}
+						on:touchend={() => handlePressEnd(index, true)}
+						on:touchcancel={handlePressCancel}
 						disabled={loadingStates[index]}
 					>
 						<span class="plus-minus">

@@ -13,6 +13,9 @@
 	on:mousedown
 	on:mouseup
 	on:mouseleave
+	on:touchstart
+	on:touchend
+	on:touchcancel
 >
 	<slot></slot>
 </button>
@@ -25,6 +28,7 @@
 		transition: background-color 0.3s ease;
 		color: #fff;
 		border: none;
+		user-select: none;
 	}
 
 	.primary {
