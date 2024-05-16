@@ -5,7 +5,15 @@
 	export let disabled = false;
 </script>
 
-<button class="button {variant} {className}" {type} on:click {disabled}>
+<button
+	class="button {variant} {className}"
+	{type}
+	{disabled}
+	on:click
+	on:mousedown
+	on:mouseup
+	on:mouseleave
+>
 	<slot></slot>
 </button>
 

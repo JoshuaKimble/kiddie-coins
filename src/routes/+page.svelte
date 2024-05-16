@@ -7,6 +7,8 @@
 	let people = [];
 	let isPageLoading = false;
 	let loadingStates = [];
+	let showModal = false;
+	let isAuthenticated = true;
 
 	onMount(async () => {
 		isPageLoading = true;
@@ -21,10 +23,6 @@
 		}
 		isPageLoading = false;
 	});
-
-	let showModal = false;
-	let isAuthenticated = false;
-	let isLoading = false;
 
 	const thirtyMinutes = 15 * 60 * 1000;
 	setInterval(() => {
@@ -68,14 +66,38 @@
 		}
 	}
 
-	async function updateCoinCount(index, increment = true) {
+	let timeoutId;
+	let longPressTriggered = false;
+
+	function handleLongPress(index, increment) {
+		timeoutId = setTimeout(() => {
+			updateCoinCount(index, increment, 10); // Change 10 coins on long press
+			longPressTriggered = true; // Set the flag when long press action occurs
+		}, 1000); // Long press duration
+	}
+
+	function clearLongPress() {
+		clearTimeout(timeoutId);
+		timeoutId = null;
+	}
+
+	function handleMouseUp(index, increment) {
+		clearLongPress();
+		if (!longPressTriggered) {
+			updateCoinCount(index, increment); // Only proceed with click if long press wasn't triggered
+		}
+		longPressTriggered = false; // Reset the flag after handling mouse up
+	}
+
+	async function updateCoinCount(index, increment = true, amount = 1) {
 		if (!isAuthenticated) {
 			alert('You must be signed in to edit coins!');
 			return;
 		}
 
 		const { coins, name } = people[index];
-		const newCoinCount = increment ? coins + 1 : coins - 1;
+		const changeAmount = increment ? amount : -amount;
+		const newCoinCount = coins + changeAmount;
 
 		if (newCoinCount < 0) {
 			alert('Coin count cannot be negative.');
@@ -116,7 +138,9 @@
 					<p>{person.coins} coins</p>
 					<Button
 						variant="secondary"
-						on:click={() => updateCoinCount(index, false)}
+						on:mousedown={() => handleLongPress(index, false)}
+						on:mouseup={() => handleMouseUp(index, false)}
+						on:mouseleave={clearLongPress}
 						disabled={loadingStates[index]}
 					>
 						<span class="plus-minus">
@@ -127,7 +151,12 @@
 							{/if}
 						</span>
 					</Button>
-					<Button on:click={() => updateCoinCount(index)} disabled={loadingStates[index]}>
+					<Button
+						on:mousedown={() => handleLongPress(index, true)}
+						on:mouseup={() => handleMouseUp(index, true)}
+						on:mouseleave={clearLongPress}
+						disabled={loadingStates[index]}
+					>
 						<span class="plus-minus">
 							{#if loadingStates[index]}
 								<Spinner />
