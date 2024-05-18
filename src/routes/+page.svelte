@@ -69,14 +69,14 @@
 	let timeoutId;
 	let longPressTriggered = false;
 
-	function handlePressStart(index, increment) {
+	function handlePressStart(index, increment = true) {
 		timeoutId = setTimeout(() => {
 			updateCoinCount(index, increment, 10);
 			longPressTriggered = true;
 		}, 1000);
 	}
 
-	function handlePressEnd(index, increment) {
+	function handlePressEnd(index, increment = true) {
 		clearTimeout(timeoutId);
 		if (!longPressTriggered) {
 			updateCoinCount(index, increment);
@@ -132,7 +132,7 @@
 	<div class="container">
 		{#each people as person, index}
 			<div class="card">
-				<img src={person.img} alt={person.name} class="person-image" />
+				<img src={`images/${person.img}`} alt={person.name} class="person-image" />
 				<div class="card-body">
 					<h3>{person.name}</h3>
 					<p>{person.coins} coins</p>
@@ -155,11 +155,11 @@
 						</span>
 					</Button>
 					<Button
-						on:mousedown={() => handlePressStart(index, true)}
-						on:mouseup={() => handlePressEnd(index, true)}
+						on:mousedown={() => handlePressStart(index)}
+						on:mouseup={() => handlePressEnd(index)}
 						on:mouseleave={handlePressCancel}
-						on:touchstart={() => handlePressStart(index, true)}
-						on:touchend={() => handlePressEnd(index, true)}
+						on:touchstart={() => handlePressStart(index)}
+						on:touchend={() => handlePressEnd(index)}
 						on:touchcancel={handlePressCancel}
 						disabled={loadingStates[index]}
 					>
