@@ -24,11 +24,6 @@
 		isPageLoading = false;
 	});
 
-	const thirtyMinutes = 15 * 60 * 1000;
-	setInterval(() => {
-		isAuthenticated = false;
-	}, thirtyMinutes);
-
 	function getCurrentPin() {
 		const now = new Date();
 		const mm = String(now.getMonth() + 1).padStart(2, '0');
