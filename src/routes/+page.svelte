@@ -43,7 +43,11 @@
 	}
 
 	function toggleModal() {
-		showModal = !showModal;
+		if (isAuthenticated) {
+			isAuthenticated = false;
+		} else {
+			showModal = !showModal;
+		}
 	}
 
 	async function updateCoins(personName, newCoinCount) {
@@ -114,7 +118,7 @@
 
 <div class="header">
 	<h1><img class="logo" src="/kid-coin.png" alt="coin" />Kid Coins</h1>
-	<Button variant="secondary" on:click={toggleModal}>Login</Button>
+	<Button variant="secondary" on:click={toggleModal}>{isAuthenticated ? 'Logout' : 'Login'}</Button>
 </div>
 
 <Modal show={showModal} authenticate={checkPin} close={toggleModal} />
