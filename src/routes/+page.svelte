@@ -15,7 +15,6 @@
 		const response = await fetch('/api/people');
 		if (response.ok) {
 			const { data } = await response.json();
-			console.log('data:', data);
 			people = data;
 			loadingStates = new Array(people.length).fill(false);
 		} else {
@@ -24,21 +23,25 @@
 		isPageLoading = false;
 	});
 
-	function getCurrentPin() {
-		const now = new Date();
-		const mm = String(now.getMonth() + 1).padStart(2, '0');
-		const dd = String(now.getDate()).padStart(2, '0');
-		const yy = String(now.getFullYear()).slice(-2);
-		return mm + dd + yy;
-	}
+	async function checkPin(pin) {
+		try {
+			const userLocalTime = new Date().toDateString();
+			const { authenticated } = await fetch('/api/login', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ pin, userLocalTime })
+			}).then((res) => res.json());
 
-	function checkPin(inputPin) {
-		const todayPin = getCurrentPin();
-		if (inputPin === todayPin) {
-			isAuthenticated = true;
-			showModal = false;
-		} else {
-			alert('Incorrect PIN');
+			if (authenticated) {
+				isAuthenticated = true;
+				showModal = false;
+			} else {
+				alert('Incorrect PIN');
+			}
+		} catch (error) {
+			alert('An error occurred while checking the PIN');
 		}
 	}
 
