@@ -63,8 +63,9 @@ export async function POST({ request }) {
 				}
 			});
 			return json({
+				body: { message: 'Update successful' },
 				status: 200,
-				body: { message: 'Update successful' }
+				coins
 			});
 		} else {
 			return json({ message: 'Person not found' }, { status: 404 });

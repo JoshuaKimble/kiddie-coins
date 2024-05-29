@@ -10,29 +10,31 @@
 	let showModal = false;
 	let isAuthenticated = false;
 
-	onMount(async () => {
+	onMount(fetchPeople);
+
+	async function fetchPeople() {
 		isPageLoading = true;
-		const response = await fetch('/api/people');
-		if (response.ok) {
+		try {
+			const response = await fetch('/api/people');
 			const { data } = await response.json();
 			people = data;
 			loadingStates = new Array(people.length).fill(false);
-		} else {
-			console.error('failed to fetch people');
+		} catch (error) {
+			console.error('An error occurred:', error);
+		} finally {
+			isPageLoading = false;
 		}
-		isPageLoading = false;
-	});
+	}
 
 	async function checkPin(pin) {
 		try {
 			const userLocalTime = new Date().toDateString();
-			const { authenticated } = await fetch('/api/login', {
+			const response = await fetch('/api/login', {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
+				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ pin, userLocalTime })
-			}).then((res) => res.json());
+			});
+			const { authenticated } = await response.json();
 
 			if (authenticated) {
 				isAuthenticated = true;
@@ -41,7 +43,7 @@
 				alert('Incorrect PIN');
 			}
 		} catch (error) {
-			alert('An error occurred while checking the PIN');
+			alert('An error occurred while checking the PIN', error);
 		}
 	}
 
@@ -54,17 +56,17 @@
 	}
 
 	async function updateCoins(personName, newCoinCount) {
-		const response = await fetch('/api/people', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ name: personName, coins: newCoinCount })
-		});
-		if (response.ok) {
-			console.info('Update was successful');
-		} else {
-			console.error('Failed to update coins');
+		try {
+			const response = await fetch('/api/people', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name: personName, coins: newCoinCount })
+			});
+			const { coins } = await response.json();
+
+			return coins;
+		} catch (error) {
+			alert('Failed to update coins:', error);
 		}
 	}
 
@@ -92,27 +94,20 @@
 	}
 
 	async function updateCoinCount(index, increment = true, amount = 1) {
-		if (!isAuthenticated) {
-			alert('You must be signed in to edit coins!');
-			return;
-		}
+		if (!isAuthenticated) return alert('You must be signed in to edit coins!');
 
 		const { coins, name } = people[index];
 		const changeAmount = increment ? amount : -amount;
 		const newCoinCount = coins + changeAmount;
 
-		if (newCoinCount < 0) {
-			alert('Coin count cannot be negative.');
-			return;
-		}
+		if (newCoinCount < 0) return alert('Coin count cannot be negative.');
 
 		loadingStates[index] = true;
 		try {
-			await updateCoins(name, newCoinCount);
-			people[index].coins = newCoinCount;
+			const coins = await updateCoins(name, newCoinCount);
+			people[index].coins = coins;
 		} catch (error) {
-			console.error('Failed to update coins:', error);
-			alert('Failed to update coins.');
+			alert('Failed to update coins.', error);
 		} finally {
 			loadingStates[index] = false;
 		}
@@ -128,7 +123,7 @@
 
 {#if isPageLoading}
 	<div class="loading-container">
-		<Spinner --size={'10em'} />
+		<Spinner size="10em" />
 	</div>
 {:else}
 	<div class="container">
