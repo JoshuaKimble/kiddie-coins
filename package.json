@@ -25,6 +25,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"googleapis": "^136.0.0"
+		"googleapis": "^136.0.0",
+		"jsonwebtoken": "^9.0.2"
 	}
 }
