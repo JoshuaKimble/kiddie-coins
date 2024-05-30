@@ -146,8 +146,14 @@
 						on:mousedown={() => handlePressStart(index, false)}
 						on:mouseup={() => handlePressEnd(index, false)}
 						on:mouseleave={handlePressCancel}
-						on:touchstart={() => handlePressStart(index, false)}
-						on:touchend={() => handlePressEnd(index, false)}
+						on:touchstart={(event) => {
+							event.preventDefault();
+							handlePressStart(index, false);
+						}}
+						on:touchend={(event) => {
+							event.preventDefault();
+							handlePressEnd(index, false);
+						}}
 						on:touchcancel={handlePressCancel}
 						disabled={loadingStates[index]}
 					>
@@ -163,8 +169,14 @@
 						on:mousedown={() => handlePressStart(index)}
 						on:mouseup={() => handlePressEnd(index)}
 						on:mouseleave={handlePressCancel}
-						on:touchstart={() => handlePressStart(index)}
-						on:touchend={() => handlePressEnd(index)}
+						on:touchstart={(event) => {
+							event.preventDefault();
+							handlePressStart(index);
+						}}
+						on:touchend={(event) => {
+							event.preventDefault();
+							handlePressEnd(index);
+						}}
 						on:touchcancel={handlePressCancel}
 						disabled={loadingStates[index]}
 					>
