@@ -1,5 +1,6 @@
 import { json, text } from '@sveltejs/kit';
 import { google } from 'googleapis';
+import jwt from 'jsonwebtoken';
 
 const auth = new google.auth.GoogleAuth({
 	credentials: {
@@ -10,6 +11,7 @@ const auth = new google.auth.GoogleAuth({
 });
 
 const sheets = google.sheets({ version: 'v4', auth });
+const JWT_SECRET = process.env.JWT_SECRET;
 
 function transformData(data) {
 	const headers = data[0];
@@ -44,7 +46,15 @@ export async function POST({ request }) {
 
 	const { name, coins } = reqJson;
 
+	const authHeader = request.headers.get('Authorization');
+	if (!authHeader) {
+		return json({ message: 'No token provided' }, { status: 401 });
+	}
+
+	const token = authHeader.split(' ')[1];
 	try {
+		jwt.verify(token, JWT_SECRET);
+
 		const findResponse = await sheets.spreadsheets.values.get({
 			spreadsheetId: SPREADSHEET_ID,
 			range: 'Sheet1'

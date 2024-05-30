@@ -8,7 +8,7 @@
 	let isPageLoading = false;
 	let loadingStates = [];
 	let showModal = false;
-	let isAuthenticated = false;
+	let token = null;
 
 	onMount(fetchPeople);
 
@@ -34,10 +34,10 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ pin, userLocalTime })
 			});
-			const { authenticated } = await response.json();
+			const { token: jwtToken } = await response.json();
 
-			if (authenticated) {
-				isAuthenticated = true;
+			if (jwtToken) {
+				token = jwtToken;
 				showModal = false;
 			} else {
 				alert('Incorrect PIN');
@@ -48,18 +48,23 @@
 	}
 
 	function toggleModal() {
-		if (isAuthenticated) {
-			isAuthenticated = false;
+		if (token) {
+			token = null;
 		} else {
 			showModal = !showModal;
 		}
 	}
 
 	async function updateCoins(personName, newCoinCount) {
+		if (!token) return alert('You must be signed in to edit coins!');
+
 		try {
 			const response = await fetch('/api/people', {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`
+				},
 				body: JSON.stringify({ name: personName, coins: newCoinCount })
 			});
 			const { coins } = await response.json();
@@ -94,7 +99,7 @@
 	}
 
 	async function updateCoinCount(index, increment = true, amount = 1) {
-		if (!isAuthenticated) return alert('You must be signed in to edit coins!');
+		if (!token) return alert('You must be signed in to edit coins!');
 
 		const { coins, name } = people[index];
 		const changeAmount = increment ? amount : -amount;
@@ -104,8 +109,8 @@
 
 		loadingStates[index] = true;
 		try {
-			const coins = await updateCoins(name, newCoinCount);
-			people[index].coins = coins;
+			const updatedCoins = await updateCoins(name, newCoinCount);
+			people[index].coins = updatedCoins;
 		} catch (error) {
 			alert('Failed to update coins.', error);
 		} finally {
@@ -116,7 +121,7 @@
 
 <div class="header">
 	<h1><img class="logo" src="/kid-coin.png" alt="coin" />Kid Coins</h1>
-	<Button variant="secondary" on:click={toggleModal}>{isAuthenticated ? 'Logout' : 'Login'}</Button>
+	<Button variant="secondary" on:click={toggleModal}>{token ? 'Logout' : 'Login'}</Button>
 </div>
 
 <Modal show={showModal} authenticate={checkPin} close={toggleModal} />

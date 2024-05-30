@@ -1,4 +1,7 @@
 import { json } from '@sveltejs/kit';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 function getCurrentPin(localTime) {
 	const now = new Date(localTime);
@@ -13,8 +16,18 @@ export async function POST({ request }) {
 	const todayPin = getCurrentPin(userLocalTime);
 	const authenticated = pin === todayPin;
 
-	return json({
-		authenticated,
-		message: `Login ${authenticated ? 'successful' : 'failed'}`
-	});
+	if (authenticated) {
+		const token = jwt.sign({ pin }, JWT_SECRET, { expiresIn: '1h' });
+		return json({
+			token,
+			message: 'Login successful'
+		});
+	} else {
+		return json(
+			{
+				message: 'Login failed'
+			},
+			{ status: 401 }
+		);
+	}
 }
