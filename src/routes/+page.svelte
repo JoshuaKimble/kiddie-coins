@@ -1,6 +1,5 @@
 <script>
 	import { browser } from '$app/environment';
-	import { debounce } from './utils/debounce';
 	import Modal from './components/Modal.svelte';
 	import Button from './components/Button.svelte';
 	import Spinner from './components/Spinner.svelte';
@@ -82,34 +81,25 @@
 	let timeoutId;
 	let longPressTriggered = false;
 
-	const handlePressStart = debounce(
-		(index, increment = true) => {
-			timeoutId = setTimeout(() => {
-				updateCoinCount(index, increment, 10);
-				longPressTriggered = true;
-			}, 1000);
-		},
-		{ isLeading: true }
-	);
+	const handlePressStart = (index, increment = true) => {
+		timeoutId = setTimeout(() => {
+			updateCoinCount(index, increment, 10);
+			longPressTriggered = true;
+		}, 1000);
+	};
 
-	const handlePressEnd = debounce(
-		(index, increment = true) => {
-			clearTimeout(timeoutId);
-			if (!longPressTriggered) {
-				updateCoinCount(index, increment);
-			}
-			longPressTriggered = false;
-		},
-		{ isLeading: true }
-	);
+	const handlePressEnd = (index, increment = true) => {
+		clearTimeout(timeoutId);
+		if (!longPressTriggered) {
+			updateCoinCount(index, increment);
+		}
+		longPressTriggered = false;
+	};
 
-	const handlePressCancel = debounce(
-		() => {
-			clearTimeout(timeoutId);
-			longPressTriggered = false;
-		},
-		{ isLeading: true }
-	);
+	const handlePressCancel = () => {
+		clearTimeout(timeoutId);
+		longPressTriggered = false;
+	};
 
 	async function updateCoinCount(index, increment = true, amount = 1) {
 		if (!token) return alert('You must be signed in to edit coins!');
