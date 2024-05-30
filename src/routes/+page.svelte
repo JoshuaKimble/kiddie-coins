@@ -1,4 +1,5 @@
 <script>
+	import { browser } from '$app/environment';
 	import Modal from './components/Modal.svelte';
 	import Button from './components/Button.svelte';
 	import Spinner from './components/Spinner.svelte';
@@ -8,7 +9,7 @@
 	let isPageLoading = false;
 	let loadingStates = [];
 	let showModal = false;
-	let token = null;
+	let token = browser && window.localStorage.getItem('token');
 
 	onMount(fetchPeople);
 
@@ -37,6 +38,7 @@
 			const { token: jwtToken } = await response.json();
 
 			if (jwtToken) {
+				window.localStorage.setItem('token', jwtToken);
 				token = jwtToken;
 				showModal = false;
 			} else {
@@ -49,6 +51,7 @@
 
 	function toggleModal() {
 		if (token) {
+			window.localStorage.setItem('token', '');
 			token = null;
 		} else {
 			showModal = !showModal;
