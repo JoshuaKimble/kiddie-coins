@@ -82,8 +82,10 @@
 	let longPressTriggered = false;
 
 	const handlePressStart = (index, increment = true) => {
+		const { coins } = people[index];
+		const amount = !increment && coins < 10 ? coins : 10;
 		timeoutId = setTimeout(() => {
-			updateCoinCount(index, increment, 10);
+			updateCoinCount(index, increment, amount);
 			longPressTriggered = true;
 		}, 1000);
 	};
