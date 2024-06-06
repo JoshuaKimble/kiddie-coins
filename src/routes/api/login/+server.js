@@ -17,7 +17,7 @@ export async function POST({ request }) {
 	const authenticated = pin === todayPin;
 
 	if (authenticated) {
-		const token = jwt.sign({ pin }, JWT_SECRET, { expiresIn: '1h' });
+		const token = jwt.sign({ pin }, JWT_SECRET, { expiresIn: '15m' });
 		return json({
 			token,
 			message: 'Login successful'
