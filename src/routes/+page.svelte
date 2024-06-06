@@ -9,9 +9,25 @@
 	let isPageLoading = false;
 	let loadingStates = [];
 	let showModal = false;
-	let token = browser && window.localStorage.getItem('token');
+	let token = null;
 
-	onMount(fetchPeople);
+	onMount(() => Promise.all([validateToken(), fetchPeople()]));
+
+	async function validateToken() {
+		const localToken = browser && window.localStorage.getItem('token');
+
+		if (localToken) {
+			const response = await fetch('/api/validate', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ token: localToken })
+			});
+
+			const { authenticated } = await response.json();
+
+			if (authenticated) token = localToken;
+		}
+	}
 
 	async function fetchPeople() {
 		isPageLoading = true;
